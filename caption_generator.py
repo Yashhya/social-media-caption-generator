@@ -1,8 +1,8 @@
 import streamlit as st
-import openai
+import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
-# -- Streamlit Page Config --
+# -- Page Configuration --
 st.set_page_config(
     page_title="Social Media Caption Generator",
     page_icon="📱",
@@ -34,25 +34,26 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# -- Main Title & Tagline --
+# -- Main Header & Subtitle --
 st.markdown("<div class='main-header'>📱 Social Media Caption Generator</div>", unsafe_allow_html=True)
 st.markdown("<div class='sub-header'>Unleash catchy, AI-crafted captions with a single click!</div>", unsafe_allow_html=True)
 
-# -- Sidebar Instructions & Branding --
+# -- Sidebar Instructions --
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/ai.png", width=80)
     st.header("How to Use")
     st.write("""
-      1. Select a social platform below.
+      1. Select a social platform.
       2. Enter your content theme or keyword.
       3. Click 'Generate Caption' and copy your result!
     """)
-    st.info("Powered by OpenAI GPT-3.5 Turbo")
+    st.info("Powered by Google Gemini AI")
 
-# -- OpenAI API Key (secure) --
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# -- Gemini API Setup --
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# -- Platform Selection With Logo/Name --
+# -- Platform Selector with Logos --
 selected_platform = option_menu(
     menu_title=None,
     options=["Instagram", "LinkedIn", "Twitter"],
@@ -64,7 +65,7 @@ selected_platform = option_menu(
 keyword = st.text_input("🎯 Enter a theme/keyword (e.g., fitness, coding, travel)")
 st.markdown("---")
 
-# -- Caption Generation Section --
+# -- Generate Caption Logic --
 if st.button("✨ Generate Caption"):
     if not keyword:
         st.warning("⚠️ Please enter a keyword!")
@@ -72,19 +73,15 @@ if st.button("✨ Generate Caption"):
         with st.spinner("Generating your caption..."):
             try:
                 prompt = (
-                    f"Create a short, catchy {selected_platform} caption about '{keyword}' with emojis."
+                    f"Generate a creative, short, and catchy caption for {selected_platform} "
+                    f"related to '{keyword}'. Add emojis if suitable."
                 )
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": prompt}],
-                    max_tokens=60,
-                    temperature=0.8,
-                )
-                caption = response['choices'][0]['message']['content'].strip()
+                response = model.generate_content(prompt)
+                caption = getattr(response, 'text', '').strip()
                 if caption:
                     st.success("Here's your caption:")
                     st.code(caption, language='markdown')
                 else:
-                    st.error("No caption generated. Check your API status or try again.")
+                    st.error("No caption generated. Please check your API status or try again.")
             except Exception as e:
                 st.error(f"Error: {e}")
