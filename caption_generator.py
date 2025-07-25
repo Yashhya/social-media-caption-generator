@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
-# --- Page & Style ---
+# --- Page Config & Styling ---
 st.set_page_config(
     page_title="Social Media Caption Generator",
     page_icon="📱",
@@ -32,7 +32,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- App Titles ---
+# --- App Title ---
 st.markdown("<div class='main-header'>📱 Social Media Caption Generator</div>", unsafe_allow_html=True)
 st.markdown("<div class='sub-header'>Unleash catchy, AI-crafted captions with a single click!</div>", unsafe_allow_html=True)
 
@@ -47,16 +47,16 @@ with st.sidebar:
     """)
     st.info("Powered by Google Gemini AI")
 
-# --- Gemini API Key and Model Setup ---
+# --- Gemini API Setup ---
 try:
-    GEMINI_API_KEY = "your-actual-api-key"
-    
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 except Exception as e:
-    st.error("Gemini API key not found or invalid. Please add your key in Streamlit secrets as GEMINI_API_KEY and ensure the Gemini API is enabled for your Google Cloud project.")
+    st.error("❌ API configuration failed. Make sure your `GEMINI_API_KEY` is set in Streamlit secrets.")
     st.stop()
 
-# --- Platform Selection ---
+# --- Platform Selector ---
 selected_platform = option_menu(
     menu_title=None,
     options=["Instagram", "LinkedIn", "Twitter"],
@@ -68,14 +68,14 @@ selected_platform = option_menu(
 keyword = st.text_input("🎯 Enter a theme/keyword (e.g., fitness, coding, travel)")
 st.markdown("---")
 
-# --- Caption Generation ---
+# --- Caption Generator ---
 if st.button("✨ Generate Caption"):
     if not keyword.strip():
         st.warning("⚠️ Please enter a keyword!")
     else:
         with st.spinner("Generating your caption..."):
             try:
-                prompt = f"Short, catchy {selected_platform} caption about '{keyword}' with emojis."
+                prompt = f"Create a short, catchy {selected_platform} caption about '{keyword}' with emojis and informal style."
                 response = model.generate_content(
                     prompt,
                     generation_config=genai.types.GenerationConfig(
@@ -87,11 +87,6 @@ if st.button("✨ Generate Caption"):
                     st.success("Here's your caption:")
                     st.code(caption, language='markdown')
                 else:
-                    st.error("No caption generated. Please check your API status or try again.")
+                    st.error("No caption generated. Please try again.")
             except Exception as e:
-                if "API key not valid" in str(e):
-                    st.error("Gemini API key not valid. Please check your API key, re-add it in Streamlit secrets, and verify the Gemini API is enabled in your Cloud Console.")
-                elif "timeout" in str(e).lower() or "deadline" in str(e).lower():
-                    st.error("⏰ Request timed out. Please try again, simplify the prompt, or check your quota.")
-                else:
-                    st.error(f"An error occurred: {e}")
+                st.error(f"An error occurred: {e}")
