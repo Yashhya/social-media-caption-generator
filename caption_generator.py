@@ -33,7 +33,8 @@ with st.sidebar:
     st.info("Powered by Google Gemini AI")
 
 # Configure Gemini API key securely
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+GEMINI_API_KEY = "your-actual-gemini-api-key"
+
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 # --- Platform Selection with Logos ---
