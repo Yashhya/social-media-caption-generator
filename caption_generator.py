@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
-# --- Page configuration ---
+# --- Page Configuration ---
 st.set_page_config(
     page_title="Social Media Caption Generator",
     page_icon="📱",
@@ -49,12 +49,16 @@ with st.sidebar:
     """)
     st.info("Powered by Google Gemini AI")
 
-# --- Gemini API Key ---
-GEMINI_API_KEY = "your-actual-gemini-api-key"
+# --- Gemini API Key (from Streamlit secrets) ---
+try:
+    GEMINI_API_KEY = "your-actual-gemini-api-key"
 
-model = genai.GenerativeModel("models/gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
+except Exception as e:
+    st.error("API key not set or invalid. Please add a valid Gemini API key in Streamlit secrets as GEMINI_API_KEY.")
+    st.stop()
 
-# --- Platform Selector with Logos ---
+# --- Platform Selection with Logos ---
 selected_platform = option_menu(
     menu_title=None,
     options=["Instagram", "LinkedIn", "Twitter"],
@@ -66,9 +70,9 @@ selected_platform = option_menu(
 keyword = st.text_input("🎯 Enter a theme/keyword (e.g., fitness, coding, travel)")
 st.markdown("---")
 
-# --- Caption Generation ---
+# --- Caption Generation Logic ---
 if st.button("✨ Generate Caption"):
-    if not keyword:
+    if not keyword.strip():
         st.warning("⚠️ Please enter a keyword!")
     else:
         with st.spinner("Generating your caption..."):
@@ -78,13 +82,22 @@ if st.button("✨ Generate Caption"):
                     prompt,
                     generation_config=genai.types.GenerationConfig(
                         max_output_tokens=60
-                    )
+                    ),
+                    safety_settings={
+                        "HARASSMENT": "BLOCK_NONE",
+                        "HATE_SPEECH": "BLOCK_NONE",
+                        "SEXUAL": "BLOCK_NONE",
+                        "DANGEROUS": "BLOCK_NONE"
+                    },
                 )
                 caption = getattr(response, 'text', '').strip()
                 if caption:
                     st.success("Here's your caption:")
                     st.code(caption, language='markdown')
                 else:
-                    st.error("No caption generated. Please check your API status or try again.")
+                    st.error("No caption generated. Please retry or check API status.")
             except Exception as e:
-                st.error("A connection or timeout error occurred. Please try again soon.")
+                if "timeout" in str(e).lower() or "deadline" in str(e).lower():
+                    st.error("⏰ Request timed out. Try again, use a simpler keyword, and check your API quota.")
+                else:
+                    st.error(f"An error occurred: {e}")
