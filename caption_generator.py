@@ -2,14 +2,14 @@ import streamlit as st
 import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
-# -- Page Configuration --
+# --- Page configuration ---
 st.set_page_config(
     page_title="Social Media Caption Generator",
     page_icon="📱",
     layout="centered"
 )
 
-# -- Custom Styles --
+# --- Custom Styles ---
 st.markdown("""
     <style>
     .main-header {
@@ -34,11 +34,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# -- Main Header & Subtitle --
+# --- Titles ---
 st.markdown("<div class='main-header'>📱 Social Media Caption Generator</div>", unsafe_allow_html=True)
 st.markdown("<div class='sub-header'>Unleash catchy, AI-crafted captions with a single click!</div>", unsafe_allow_html=True)
 
-# -- Sidebar Instructions --
+# --- Sidebar Instructions and Branding ---
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/ai.png", width=80)
     st.header("How to Use")
@@ -49,12 +49,12 @@ with st.sidebar:
     """)
     st.info("Powered by Google Gemini AI")
 
-# -- Gemini API Setup --
+# --- Gemini API Key (from Streamlit secrets) ---
 GEMINI_API_KEY = "your-actual-gemini-api-key"
 
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# -- Platform Selector with Logos --
+# --- Platform Selection with Logos ---
 selected_platform = option_menu(
     menu_title=None,
     options=["Instagram", "LinkedIn", "Twitter"],
@@ -62,22 +62,25 @@ selected_platform = option_menu(
     orientation="horizontal"
 )
 
-# -- Keyword Input --
+# --- Keyword Input ---
 keyword = st.text_input("🎯 Enter a theme/keyword (e.g., fitness, coding, travel)")
 st.markdown("---")
 
-# -- Generate Caption Logic --
+# --- Generate Caption Logic ---
 if st.button("✨ Generate Caption"):
     if not keyword:
         st.warning("⚠️ Please enter a keyword!")
     else:
         with st.spinner("Generating your caption..."):
             try:
-                prompt = (
-                    f"Generate a creative, short, and catchy caption for {selected_platform} "
-                    f"related to '{keyword}'. Add emojis if suitable."
+                prompt = f"Short, catchy {selected_platform} caption about '{keyword}' with emojis."
+                # Use a low max_output_tokens for speed
+                response = model.generate_content(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        max_output_tokens=60
+                    )
                 )
-                response = model.generate_content(prompt)
                 caption = getattr(response, 'text', '').strip()
                 if caption:
                     st.success("Here's your caption:")
@@ -85,4 +88,5 @@ if st.button("✨ Generate Caption"):
                 else:
                     st.error("No caption generated. Please check your API status or try again.")
             except Exception as e:
-                st.error(f"Error: {e}")
+                st.error("A connection or timeout error occurred. Please try again soon.")
+
