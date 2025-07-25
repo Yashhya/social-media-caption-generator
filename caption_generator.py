@@ -6,7 +6,8 @@ import os
 
 # Set your Gemini API key
 
-genai.configure(api_key="ENTER YOUR OWN API KEY")
+GEMINI_API_KEY = "your-actual-gemini-api-key"
+
 
 # Create Gemini model
 model = genai.GenerativeModel("models/gemini-1.5-flash")
