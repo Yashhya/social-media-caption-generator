@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from streamlit_option_menu import option_menu
 
+
 # Page config
 st.set_page_config(
     page_title="Social Media Caption Generator",
