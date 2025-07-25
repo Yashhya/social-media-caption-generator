@@ -51,8 +51,7 @@ with st.sidebar:
 
 # --- Gemini API Key (from Streamlit secrets) ---
 try:
-    GEMINI_API_KEY = "your-actual-gemini-api-key"
-
+   GEMINI_API_KEY = "your-actual-gemini-api-key"
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 except Exception as e:
     st.error("API key not set or invalid. Please add a valid Gemini API key in Streamlit secrets as GEMINI_API_KEY.")
