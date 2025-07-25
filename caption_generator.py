@@ -23,7 +23,8 @@ with st.sidebar:
     """)
     st.info("Powered by Google Gemini AI")
 
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+GEMINI_API_KEY = "your-real-gemini-api-key"
+
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 platform = st.radio("Choose platform", ['Instagram 🟣', 'Twitter 🟦', 'LinkedIn 🔵'], horizontal=True)
