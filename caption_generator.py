@@ -49,12 +49,12 @@ with st.sidebar:
     """)
     st.info("Powered by Google Gemini AI")
 
-# --- Gemini API Key Configuration ---
+# --- Gemini API Key ---
 GEMINI_API_KEY = "your-actual-gemini-api-key"
 
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# --- Platform Selection with Logos ---
+# --- Platform Selector with Logos ---
 selected_platform = option_menu(
     menu_title=None,
     options=["Instagram", "LinkedIn", "Twitter"],
@@ -66,7 +66,7 @@ selected_platform = option_menu(
 keyword = st.text_input("🎯 Enter a theme/keyword (e.g., fitness, coding, travel)")
 st.markdown("---")
 
-# --- Generate Caption Logic ---
+# --- Caption Generation ---
 if st.button("✨ Generate Caption"):
     if not keyword:
         st.warning("⚠️ Please enter a keyword!")
