@@ -50,6 +50,8 @@ with st.sidebar:
 # --- Gemini API Key and Model Setup ---
 try:
     GEMINI_API_KEY = "your-actual-api-key"
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
 
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 except Exception as e:
