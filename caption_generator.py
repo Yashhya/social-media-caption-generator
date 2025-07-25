@@ -50,9 +50,7 @@ with st.sidebar:
 # --- Gemini API Key and Model Setup ---
 try:
     GEMINI_API_KEY = "your-actual-api-key"
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-
+    
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 except Exception as e:
     st.error("Gemini API key not found or invalid. Please add your key in Streamlit secrets as GEMINI_API_KEY and ensure the Gemini API is enabled for your Google Cloud project.")
